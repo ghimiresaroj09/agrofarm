@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<!-- Section-->
+<section class="py-5">
+  <div class="container px-4 px-lg-5 mt-5">
+    {% for category, products in catwise.items %}
+      <div class="row mb-4">
+        <div class="col">
+          <h2><i>{{ category.name }}:</i></h2>
+        </div>
+        <hr>
+      </div>
+      <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+        {% for product in products %}
+          <div class="col mb-5">
+            <div class="card h-100">
+              <div class="image-container">
+                <a href="{% url 'product' product.id %}">
+                  <img class="card-img-top" src="{{ product.image.url }}" alt="{{ product.name }}">
+                </a>
+              </div>
+              <div class="card-body p-4">
+                <div class="text-center">
+                  <a href="{% url 'product' product.id %}" style="text-decoration: none; color: black;">
+                    <h5 class="fw-bolder">{{ product.name }}</h5>
+                  </a>
+                  {% if not product.out_of_stock %}
+                    {% if product.is_sale %}
+                      <div class="badge bg-danger text-white position-absolute" style="top: 0.5rem; left: 0.5rem; z-index: 1">
+                        Sale
+                      </div>
+                        <strike>Rs.{{ product.price }}</strike> &nbsp; Rs.{{ product.sale_price }}
+                    {% else %}
+                      Rs.{{ product.price }}
+                    {% endif %}
+                  {% else %}
+                    <i class="text-danger">Out of Stock</i>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                <div class="text-center">
+                  {% if not product.out_of_stock %}
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                      <button type="button" class="btn btn-outline-dark" id="decrement{{ product.id }}">-</button>
+                      <input type="text" class="form-control form-control-sm qty-input text-center mx-1" id="qty{{ product.id }}" value="1" readonly style="width: 60px;">
+                      <button type="button" class="btn btn-outline-dark" id="increment{{ product.id }}">+</button>
+                    </div>
+                    <button type="button" data-index="{{ product.id }}" class="btn btn-outline-dark mt-auto add-to-cart">Add to Cart</button>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination links -->
+  <div class="pagination">
+    {% for num in page_obj.paginator.page_range %}
+      <a href="?page={{ num }}" class="page-link {% if num == page_obj.number %}current{% endif %}">{{ num }}</a>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+  // Update quantity with + and - buttons
+  document.querySelectorAll('.btn-outline-dark').forEach(button => {
+    button.addEventListener('click', function() {
+      const productId = this.id.replace(/^(increment|decrement)/, '');
+      const qtyInput = document.getElementById('qty' + productId);
+      let currentValue = parseInt(qtyInput.value);
+
+      if (this.id.startsWith('decrement') && currentValue > 1) {
+        qtyInput.value = currentValue - 1;
+      }
+      if (this.id.startsWith('increment') && currentValue < 10) {
+        qtyInput.value = currentValue + 1;
+      }
+    });
+  });
+
+  // Add to Cart
+  $(document).on('click', '.add-to-cart', function(e) {
+    e.preventDefault();
+    var productId = $(this).data('index');
+    var quantity = $('#qty' + productId).val();
+
+    $.ajax({
+      type: 'POST',
+      url: '{% url 'cart_add' %}',
+      data: {
+        product_id: productId,
+        product_qty: quantity,
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        action: 'post'
+      },
+      success: function(json) {
+        location.reload();
+      },
+      error: function(xhr, errmsg, err) {
+      }
+    });
+  });
+</script>
+
+{% endblock %}

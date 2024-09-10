@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Header-->
+        
+
+            <div class="container">
+        <h1>UnShipped Orders</h1>
+       {% if orders %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Shipping Address</th>
+                        <th>Total Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.full_name }}</td>
+                            <td>{{ order.email }}</td>
+                            <td>{{ order.shipping_address }}</td>
+                            <td>Rs.{{ order.total_amount }}</td>
+                            <td>
+                                <form method="POST" action="{% url 'unshipped_dash' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="num" value="{{ order.id }}">
+                                    <button type="submit" class="btn btn-success">Mark as Shipped</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No unshipped orders found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+{% endblock %}

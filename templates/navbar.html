@@ -1,0 +1,134 @@
+{% load static %}
+
+<nav class="navbar sticky-top navbar-expand-lg bg-custom">
+  <div class="container-fluid">
+    <a class="navbar-logo" href="{% url 'home' %}">
+      <img src="{% static 'assets/logo.png' %}" alt="Logo">
+      <span>Hamro Agro Farm</span>
+    </a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'home' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'sale' %}">Sale</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            id="navbarDropdown"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Categories
+          </a>
+          <ul class="dropdown-menu bg-custom" aria-labelledby="navbarDropdown">
+            {% for category in categories %}
+            <li>
+              <a class="dropdown-item" href="{% url 'category' category.name %}">{{ category.name }}</a>
+            </li>
+            {% endfor %}
+          </ul>
+        </li>
+      </ul>
+      <form class="d-flex" method="GET" action="{% url 'search' %}">
+        <input
+          class="form-control me-2"
+          type="search"
+          placeholder="Search"
+          aria-label="Search"
+          name="query"
+        />
+        <button class="btn btn-outline-dark me-2 bg-search" type="submit">Search</button>
+      </form>
+      <a href="{% url 'cart_summary' %}" class="btn btn-outline-dark d-flex align-items-center me-2 cart-btn">
+        <i class="bi-cart-fill me-1"></i>
+        Cart
+        <span class="badge bg-dark text-white ms-1 rounded-pill" id="cart_quantity">{{ cart|length }}</span>
+      </a>
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            id="userDropdown"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="fa-solid fa-user fa-xl"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end bg-custom" aria-labelledby="userDropdown">
+            {% if user.is_superuser %}
+            <li>
+              <a class="dropdown-item" href="{% url 'admin:index' %}">Admin Dashboard</a>
+              <a class="dropdown-item" href="{% url 'add_product' %}">Add Product</a>
+              <a class="dropdown-item" href="{% url 'order_history' %}">Order History</a>
+              <a class="dropdown-item" href="{% url 'shipped_dash' %}">Shipped Dashboard</a>
+              <a class="dropdown-item" href="{% url 'unshipped_dash' %}">Unshipped Dashboard</a>
+            </li>
+            {% endif %}
+            <li>
+              <a class="dropdown-item" href="{% url 'view_profile' %}">User Profile</a>
+              <a class="dropdown-item" href="{% url 'update_info' %}">User Info</a>
+              <a class="dropdown-item" href="{% url 'order_history' %}">Order History</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+            </li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link btn btn-success mx-2" href="{% url 'login' %}">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn btn-success" href="{% url 'register' %}">Register</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<style>
+@media (max-width: 767.98px) {
+    /* Full-width search bar */
+    .form-control.me-2 {
+        width: 100%; /* Full width on mobile */
+        margin-bottom: 0.5rem; /* Add spacing below search bar */
+    }
+
+    /* Set buttons to 50px width */
+    .d-flex .btn, 
+    .navbar-nav .nav-link.btn, .cart-btn {
+        width: 100px; /* Set width to 50px */
+        margin: 0; /* Remove margin */
+        padding: 0.5rem 0.5rem; /* Adjust padding */
+        margin-top: 5px;
+    }
+
+    /* Ensure buttons are centered */
+    .navbar-collapse {
+        flex-direction: row;
+        justify-content: space-between; /* Spread out elements */
+        align-items: center; /* Center items vertically */
+    }
+}
+
+</style>

@@ -1,0 +1,93 @@
+{% extends 'base.html' %} 
+{% block content %}
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <form method="POST" action="{% url 'register' %}" class="form bg-light p-4 rounded">
+        {% csrf_token %}
+        <h2 class="text-center mb-4">Register</h2>
+        <p class="text-center text-muted mb-4">Signup now and get full access to our app.</p>
+        
+        <div class="form-group mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input
+            type="text"
+            class="form-control"
+            name="username"
+            id="username"
+            required
+          />
+        </div>
+        
+        <div class="form-group mb-3">
+          <label for="first_name" class="form-label">First Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="first_name"
+            id="first_name"
+            required
+          />
+        </div>
+        
+        <div class="form-group mb-3">
+          <label for="last_name" class="form-label">Last Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="last_name"
+            id="last_name"
+            required
+          />
+        </div>
+        
+        <div class="form-group mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input
+            type="email"
+            class="form-control"
+            name="email"
+            id="email"
+            required
+          />
+        </div>
+        
+        <div class="form-group mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            name="password"
+            id="password"
+            required
+          />
+        </div>
+        
+        <div class="form-group mb-3">
+          <label for="confirm_password" class="form-label">Confirm Password</label>
+          <input
+            type="password"
+            class="form-control"
+            name="confirm_password"
+            id="confirm_password"
+            required
+          />
+        </div>
+        
+        <div class="d-grid">
+          <button type="submit" class="btn btn-info">Register</button>
+        </div>
+
+        <div class="text-center mt-3">
+          <p class="mb-1">Already have an account? 
+            <a href="{% url 'login' %}">Login</a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<br /><br />
+
+{% endblock %}

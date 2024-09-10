@@ -1,0 +1,62 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div style="  display: flex;
+  justify-content: center;
+  align-items: center;" >
+  <form method="POST" action="{% url 'add_product' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="name">Product Name:</label>
+      <input
+        type="text"
+        class="form-control"
+        name="name"
+        required
+        id="name"
+        required
+      />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="price">Product Price:</label>
+      <input
+        type="number"
+        class="form-control"
+        name="price"
+        required
+        id="price"
+      />
+    </div>
+    <br />
+    <div class="form-group" style="width:200px !important">
+    <label for="description">Product Description:</label>
+      <textarea name="description" id="description" class="form-control" style="resize:none; width:320px"></textarea>
+    </div>
+    <br />
+    <div class="form-group">
+    <label for="category">Product Category:</label>
+      <select name="category" id="category" class="form-control">
+        Category: 
+        <option value="" disabled selected>Select category</option>
+        {% for category in categories %}
+        <option value="{{category.id}}">{{category.name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <br />
+    <div class="form-group">
+    <label for="image">Product Image:</label>
+      <input
+        type="file"
+        class="form-control"
+        name="image"
+        required
+        id="image"
+        accept="image/*"
+      />
+    </div>
+    <br />
+    <br />
+    <button type="submit" class="btn btn-secondary">Add Product</button><br><br><br><br>
+  </form>
+</div>
+{% endblock %}

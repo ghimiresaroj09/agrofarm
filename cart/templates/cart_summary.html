@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+.cart-image {
+  width: 260px;
+  height: 260px;
+}
+
+
+.container {
+  margin: 0 auto;
+  padding: 20px;
+  max-width: 1000px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+</style>
+<br>
+{% if cart_products %}
+<div class="container">
+  {% for product in cart_products %}
+  <div class="card mb-3">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img src="{{ product.image.url }}" class="img-fluid rounded-start cart-image" alt="{{ product.name }}" />
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h4 class="card-title">{{ product.name }}</h4>
+          <p class="card-text">{{ product.description }}</p>
+
+          {% if product.is_sale %}
+          <h5>
+            <strike>Rs.{{ product.price }}</strike> &nbsp; Rs.{{ product.sale_price }}
+          </h5>
+          {% else %}
+          <h5>Rs.{{ product.price }}</h5>
+          {% endif %}
+          <br>
+          <div class="d-flex  mb-3">
+            <button type="button" class="btn btn-outline-dark" id="decrement{{ product.id }}">-</button>
+            <input type="text" class="form-control form-control-sm qty-input text-center mx-1" id="qty{{ product.id }}" value="{% for key, value in quantities.items %}{% if key == product.id|stringformat:'s' %}{{ value }}{% endif %}{% endfor %}" readonly style="width: 60px;">
+            <button type="button" class="btn btn-outline-dark" id="increment{{ product.id }}">+</button>
+          </div>
+          <button type="button" data-index="{{ product.id }}" class="btn btn-success update-cart">Update</button>
+          <button type="button" data-index="{{ product.id }}" class="btn btn-danger delete-product">Remove</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="text-end">
+    <h3>Total: Rs. {{ totals }}</h3>
+    <a href="{% url 'checkout' %}" class="btn btn-primary">Checkout</a>
+  </div>
+  <br /><br /><br />
+</div>
+{% else %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <h5 class="display-4">There's nothing in the cart at the moment...</h5>
+      <br />
+      <a class="btn btn-primary" href="{% url 'home' %}">Let's Shop</a>
+      <br /><br /><br /><br /><br /><br /><br /><br /><br />
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+<script>
+  // Update quantity with + and - buttons
+  document.querySelectorAll('.btn-outline-dark').forEach(button => {
+    button.addEventListener('click', function() {
+      const productId = this.id.replace(/^(increment|decrement)/, '');
+      const qtyInput = document.getElementById('qty' + productId);
+      let currentValue = parseInt(qtyInput.value);
+
+      if (this.id.startsWith('decrement') && currentValue > 1) {
+        qtyInput.value = currentValue - 1;
+      }
+      if (this.id.startsWith('increment') && currentValue < 10) {
+        qtyInput.value = currentValue + 1;
+      }
+    });
+  });
+
+  // Update Cart
+  $(document).on('click', '.update-cart', function(e) {
+    e.preventDefault();
+    var productId = $(this).data('index');
+    var quantity = $('#qty' + productId).val();
+
+    $.ajax({
+      type: 'POST',
+      url: '{% url 'cart_update' %}',
+      data: {
+        product_id: productId,
+        product_qty: quantity,
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        action: 'post'
+      },
+      success: function(json) {
+        location.reload();
+      },
+      error: function(xhr, errmsg, err) {
+        console.log("Error: ", errmsg);
+      }
+    });
+  });
+
+  // Delete Item From Cart
+  $(document).on('click', '.delete-product', function(e) {
+    e.preventDefault();
+    var productId = $(this).data('index');
+
+    $.ajax({
+      type: 'POST',
+      url: '{% url 'cart_delete' %}',
+      data: {
+        product_id: productId,
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        action: 'post'
+      },
+      success: function(json) {
+        location.reload();
+      },
+      error: function(xhr, errmsg, err) {
+        console.log("Error: ", errmsg);
+      }
+    });
+  });
+</script>
+
+{% endblock %}

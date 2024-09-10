@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Product section -->
+<section class="py-5">
+  <div class="container px-4 px-lg-5 my-5">
+    <div class="row gx-4 gx-lg-5 align-items-center">
+      <div class="col-md-6">
+        {% if product.is_sale %}
+        <div class="badge bg-danger text-white position-absolute rounded-pill" style="top: 1rem; left: 1rem;">Sale</div>
+        {% endif %}
+        <img
+          class="card-img-top mb-5 mb-md-0 rounded shadow-lg"
+          src="{{ product.image.url }}"
+          alt="{{product.name}}"
+          height="400"
+          width="200"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <h1 class="display-5 fw-bolder">{{product.name}}</h1>
+        <p class="lead text-muted">{{product.description}}</p>
+        {% if not product.out_of_stock %}
+          {% if product.is_sale %}
+          <h4 class="text-danger">
+            <strike>Rs.{{product.price}}</strike> &nbsp; Rs.{{product.sale_price}}
+          </h4>
+          {% else %}
+          <h4>Rs.{{product.price}}</h4>
+          {% endif %}
+          <br /><br />
+          <div class="d-flex mb-3">
+            <button type="button" class="btn btn-outline-dark" id="decrement{{ product.id }}">-</button>
+            <input type="text" class="form-control form-control-sm qty-input text-center mx-1" id="qty{{ product.id }}" value="1" readonly style="width: 60px;">
+            <button type="button" class="btn btn-outline-dark" id="increment{{ product.id }}">+</button>
+          </div>
+          <br />
+          <button
+            class="btn btn-outline-dark mt-auto"
+            type="button"
+            data-index="{{ product.id }}"
+            id="add-cart"
+          >
+            <i class="bi-cart-fill me-1"></i>
+            Add to cart
+          </button>
+        {% else %}
+          {% if product.is_sale %}
+          <h4 class="text-danger">
+            <strike>Rs.{{product.price}}</strike> &nbsp; Rs.{{product.sale_price}}
+          </h4>
+          {% else %}
+          <h4>Rs.{{product.price}}</h4>
+          {% endif %}
+          <br /><br />
+          <h6 class="text-danger"><i>Out of Stock</i></h6>
+          <div class="d-flex">
+            <button
+              class="btn btn-outline-dark flex-shrink-0"
+              type="button"
+              id="add-cart"
+              disabled
+            >
+              <i class="bi-cart-fill me-1"></i>
+              Add to cart
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Related items section -->
+<section class="py-5 bg-light">
+  <div class="container px-4 px-lg-5 mt-5">
+    <h2 class="fw-bolder mb-4">Related products</h2>
+    <div class="container px-4 px-lg-5 mt-5">
+      <div
+        class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center"
+      >
+        {% for product in related_products %}
+        <div class="col mb-5">
+          <div class="card h-100 shadow-sm">
+            <div class="image-container">
+              <img
+                class="card-img-top rounded"
+                src="{{ product.image.url }}"
+                alt="{{ product.name }}"
+              />
+            </div>
+            <div class="card-body p-4">
+              <div class="text-center">
+                <h5 class="fw-bolder">{{ product.name }}</h5>
+                {% if not product.out_of_stock %}
+                    {% if product.is_sale %}
+                      <div
+                        class="badge bg-danger text-white position-absolute rounded-pill"
+                        style="top: 0.5rem; left: 0.5rem; z-index: 1">Sale
+                      </div>
+                      <strike class="text-muted">Rs.{{ product.price }}</strike> &nbsp; Rs.{{product.sale_price }}
+                    {% else %}
+                        Rs.{{ product.price }}
+                    {% endif %}
+                  {% else %}
+                <i class="text-danger">Out of Stock</i>
+                {% endif %}
+              </div>
+            </div>
+            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+              <div class="text-center">
+                <a
+                  class="btn btn-outline-dark mt-auto"
+                  href="{% url 'product' product.id %}"
+                  >View Product</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Update quantity with + and - buttons
+  document.querySelectorAll('.btn-outline-dark').forEach(button => {
+    button.addEventListener('click', function() {
+      const productId = this.id.replace(/^(increment|decrement)/, '');
+      const qtyInput = document.getElementById('qty' + productId);
+      let currentValue = parseInt(qtyInput.value);
+
+      if (this.id.startsWith('decrement') && currentValue > 1) {
+        qtyInput.value = currentValue - 1;
+      }
+      if (this.id.startsWith('increment') && currentValue < 10) {
+        qtyInput.value = currentValue + 1;
+      }
+    });
+  });
+
+  // Add to Cart
+  $(document).on('click', '#add-cart', function(e) {
+    e.preventDefault();
+    var productId = $(this).data('index');
+    var quantity = $('#qty' + productId).val();
+
+    $.ajax({
+      type: 'POST',
+      url: '{% url 'cart_add' %}',
+      data: {
+        product_id: productId,
+        product_qty: quantity,
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        action: 'post'
+      },
+      success: function(json) {
+        location.reload();
+      },
+      error: function(xhr, errmsg, err) {
+        // Handle error
+      }
+    });
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h1>{{user | title}}'s Profile</h1><br><br>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>First Name:</strong> {{ user.first_name }}</p>
+    <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+
+    <a class="btn btn-success" href="{% url 'change_password' %}">Change Password</a>
+    <a class="btn btn-warning" href="{% url 'edit_profile' %}">Edit Profile</a>
+    <a class="btn btn-danger" href="{% url 'delete_profile' %}">Delete Profile</a>
+    <div>
+    <br><br><br><br><br><br><br><br><br><br><br>
+    </div>
+    
+{% endblock  %}
+    
