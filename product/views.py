@@ -34,17 +34,16 @@ def category(request, cname):
 
 def add_product(request):
     product=""
-    if request.method == 'POST' or request.method== "FILES":
+    if request.method == 'POST':
         name = request.POST['name']
         price = request.POST['price']
         description = request.POST['description']
         category_id = request.POST['category']
-        image = request.FILES['image']
 
         # Fetch the Category instance
         category = Category.objects.get(id=category_id)
         
-        product = Product.objects.create(name=name, price=price, description=description, category=category, image=image)
+        product = Product.objects.create(name=name, price=price, description=description, category=category)
         product.save()
         messages.success(request, 'Product Added Successfully')
         return redirect('home')
