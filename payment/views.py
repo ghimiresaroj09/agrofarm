@@ -41,32 +41,37 @@ def checkout(request):
                 subtotal=unit_price * quantity,
             )
 
-
         order_items = OrderItem.objects.filter(order=order)
 
-
-        # Prepare Email
+        # Prepare and send email
         subject = 'New Order Alert'
         html_content = render_to_string('order_alert_email.html', {
             'order': order,
             'order_items': order_items,
         })
-        text_content = strip_tags(html_content)  # Convert HTML to plain text
+        text_content = strip_tags(html_content)
 
         email = EmailMultiAlternatives(
             subject=subject,
-            body=text_content,  # Plain text body
+            body=text_content,
             from_email='hamroagrofarm@gmail.com',
             to=['hamroagrofarm@gmail.com'],
         )
-        email.attach_alternative(html_content, "text/html")  # Attach HTML version
+        email.attach_alternative(html_content, "text/html")
         email.send()
 
-# Add a success message
+        # Clear the session cart
+        request.session['cart'] = {}
+        
+        # Clear the old_cart in the user's profile
+        if request.user.is_authenticated:
+            profile = request.user.profile  # Assuming the Profile model is linked with a OneToOneField to the User model
+            profile.old_cart = "{}"  # Set it to an empty dictionary (or None)
+            profile.save()
+
         messages.success(request, 'Your order has been placed successfully, and an email has been sent to the owner.')
 
-        # Clear the cart
-        request.session['cart'] = {}
+        # Redirect to the order confirmation page
         return redirect('order_confirmation', order_id=order.id)
 
     return render(request, 'checkout.html')
